@@ -4,7 +4,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Hybrid 12-Week Tracker</title>
+
+  <!-- PWA -->
   <meta name="theme-color" content="#111827" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="apple-touch-icon" href="./icon-192.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
   <style>
     :root{
       --bg:#0b1220;
@@ -19,7 +26,7 @@
     *{box-sizing:border-box}
     body{
       margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
       background:linear-gradient(180deg,#070b14,var(--bg));
       color:var(--text);
     }
@@ -47,11 +54,7 @@
     }
     .tab.active{background:#0f172a; border-color:#2b3648}
     main{padding:14px; max-width:1050px; margin:0 auto}
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:12px;
-    }
+    .grid{display:grid; grid-template-columns: 1fr; gap:12px;}
     @media(min-width:900px){
       .grid.two{grid-template-columns:1fr 1fr}
       .grid.three{grid-template-columns:1fr 1fr 1fr}
@@ -89,9 +92,16 @@
       padding:10px 8px;
       vertical-align:middle;
     }
-    th{color:var(--muted); font-weight:600; text-align:left; position:sticky; top:0; background:rgba(17,24,39,.96)}
+    th{
+      color:var(--muted);
+      font-weight:600;
+      text-align:left;
+      position:sticky; top:0;
+      background:rgba(17,24,39,.96);
+    }
     tr:last-child td{border-bottom:none}
-    input[type="number"], input[type="text"]{
+
+    input[type="text"]{
       width:100%;
       background:#0b1220;
       color:var(--text);
@@ -100,10 +110,9 @@
       border-radius:10px;
       font-size:13px;
       outline:none;
+      min-width:70px;
     }
-    input[type="number"]{appearance:textfield}
-    input[type="number"]::-webkit-outer-spin-button,
-    input[type="number"]::-webkit-inner-spin-button{appearance:none; margin:0}
+
     .chk{
       transform: scale(1.15);
       width:18px; height:18px;
@@ -127,7 +136,6 @@
     .bad{color:var(--bad)}
     .section{display:none}
     .section.active{display:block}
-    .right{text-align:right}
     .nowrap{white-space:nowrap}
     .tag{
       font-size:11px;
@@ -149,6 +157,32 @@
       font-size:13px;
       display:none;
       z-index:999;
+    }
+
+    /* ====== MOBILE FRIENDLY WIDE TABLES + LIFT INPUTS ====== */
+    .table-scroll{
+      overflow-x:auto;
+      -webkit-overflow-scrolling:touch;
+      border-radius:12px;
+    }
+    table.wide{ min-width: 980px; }
+    .lift-input{
+      min-width: 96px;   /* key: stops values like "80" disappearing */
+      text-align:right;
+    }
+    .rep-input{
+      min-width: 72px;
+      text-align:right;
+    }
+    .notes-input{
+      min-width: 180px;
+      text-align:left;
+    }
+    @media (max-width:480px){
+      th, td { padding: 8px 6px; }
+      table.wide{ min-width: 1040px; }  /* keep columns from collapsing */
+      .lift-input{ min-width: 104px; }
+      .notes-input{ min-width: 220px; }
     }
   </style>
 </head>
@@ -184,15 +218,14 @@
           <div class="pill"><span class="muted">best streak</span> <strong id="streakBest">0</strong></div>
           <div class="pill"><span class="muted">weeks done</span> <strong id="weeksDone">0</strong></div>
         </div>
-        <p class="muted" style="margin-top:10px">Streak = consecutive weeks where all 5 sessions are checked.</p>
+        <p class="muted" style="margin-top:10px">km completed counts only runs you checked off (Wed + Sun).</p>
       </div>
 
       <div class="card">
         <h2>This Week Snapshot</h2>
         <p class="muted">Pick a week to view quickly.</p>
         <div class="row" style="margin:10px 0">
-          <select id="weekPicker" class="btn" style="padding:10px 12px; border-radius:12px">
-          </select>
+          <select id="weekPicker" class="btn" style="padding:10px 12px; border-radius:12px"></select>
           <span id="weekTag" class="tag"></span>
         </div>
         <div class="grid two">
@@ -215,13 +248,13 @@
 
     <div class="card" style="margin-top:12px">
       <h2>Weekly Breakdown</h2>
-      <div style="overflow:auto; border-radius:12px">
+      <div class="table-scroll">
         <table>
           <thead>
             <tr>
               <th class="nowrap">Week</th>
               <th class="nowrap">Target km</th>
-              <th class="nowrap">Actual km</th>
+              <th class="nowrap">Completed km</th>
               <th class="nowrap">Sessions (0–5)</th>
               <th class="nowrap">Week Done</th>
               <th class="nowrap">Runs (0–2)</th>
@@ -238,8 +271,8 @@
     <div class="card">
       <h2>12-Week Tracker</h2>
       <p class="muted">Edit km in Wed/Sun. Tick sessions as you complete them. Deload weeks are highlighted.</p>
-      <div style="overflow:auto; border-radius:12px; margin-top:10px">
-        <table>
+      <div class="table-scroll" style="margin-top:10px">
+        <table class="wide" style="min-width:1060px">
           <thead>
             <tr>
               <th>Week</th>
@@ -254,7 +287,8 @@
               <th class="nowrap">Runs</th>
               <th class="nowrap">Sess</th>
               <th class="nowrap">Done</th>
-              <th class="nowrap">Total km</th>
+              <th class="nowrap">Planned km</th>
+              <th class="nowrap">Completed km</th>
             </tr>
           </thead>
           <tbody id="weeksTable"></tbody>
@@ -270,10 +304,10 @@
   <section id="lifts" class="section">
     <div class="card">
       <h2>Lift Tracker (Weekly Top Set)</h2>
-      <p class="muted">Log your best/top set each week. e1RM uses Epley: weight × (1 + reps/30).</p>
+      <p class="muted">Mobile friendly: inputs are wider and the table scrolls horizontally. e1RM uses Epley.</p>
 
-      <div style="overflow:auto; border-radius:12px; margin-top:10px">
-        <table>
+      <div class="table-scroll" style="margin-top:10px">
+        <table class="wide">
           <thead>
             <tr>
               <th>Week</th>
@@ -298,10 +332,12 @@
   <section id="settings" class="section">
     <div class="card">
       <h2>Backup & Restore</h2>
-      <p class="muted">Your data is stored on this device (localStorage). Use Export to back it up or move it to another phone.</p>
+      <p class="muted">Export to download. Share Backup opens your phone share sheet (Drive/iCloud Files).</p>
 
       <div class="footer-actions">
         <button class="btn primary" id="exportBtn">Export JSON</button>
+        <button class="btn" id="shareBtn">Share Backup</button>
+
         <label class="btn" for="importFile" style="display:inline-flex; align-items:center; gap:8px; cursor:pointer;">
           Import JSON
           <input id="importFile" type="file" accept="application/json" style="display:none" />
@@ -310,7 +346,7 @@
       </div>
 
       <div style="margin-top:12px">
-        <p class="muted small">Tip: After hosting this page, add it to your Home Screen for an “app-like” experience.</p>
+        <p class="muted small">After hosting this page, add it to Home Screen. It will work offline once loaded.</p>
       </div>
     </div>
   </section>
@@ -319,13 +355,16 @@
 <div id="toast" class="toast"></div>
 
 <script>
-  // ----------------------------
-  // Data Model
-  // ----------------------------
+  // PWA service worker
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./sw.js").catch(()=>{});
+    });
+  }
+
   const DEFAULT_TARGETS = [20,22,24,20,25,27,28,22,29,30,30,24];
   const DELOAD_WEEKS = new Set([4,8,12]);
-
-  const STORAGE_KEY = "hybrid_tracker_v1";
+  const STORAGE_KEY = "hybrid_tracker_v2";
 
   function makeDefaultState(){
     const weeks = DEFAULT_TARGETS.map((t, idx) => {
@@ -357,13 +396,14 @@
       const raw = localStorage.getItem(STORAGE_KEY);
       if(!raw) return makeDefaultState();
       const parsed = JSON.parse(raw);
-      // basic validation
       if(!parsed.weeks || !parsed.lifts) return makeDefaultState();
       return parsed;
     }catch(e){
       return makeDefaultState();
     }
   }
+
+  const state = loadState();
 
   function saveState(){
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -377,16 +417,23 @@
     toast._t = setTimeout(()=> el.style.display="none", 1600);
   }
 
+  function parseNumLoose(v){
+    if(v==null) return null;
+    const s = String(v).trim();
+    if(!s) return null;
+    const m = s.match(/-?\d+(\.\d+)?/);
+    if(!m) return null;
+    const n = Number(m[0]);
+    return isFinite(n) ? n : null;
+  }
+
   function e1rm(w, reps){
-    if(w==null || reps==null || w==="" || reps==="") return null;
-    const ww = Number(w), rr = Number(reps);
-    if(!isFinite(ww) || !isFinite(rr) || ww<=0 || rr<=0) return null;
+    const ww = parseNumLoose(w);
+    const rr = parseNumLoose(reps);
+    if(ww==null || rr==null || ww<=0 || rr<=0) return null;
     return ww*(1+rr/30);
   }
 
-  // ----------------------------
-  // Computations
-  // ----------------------------
   function weekRunsDone(w){
     return (w.checks.wedRun?1:0) + (w.checks.sunRun?1:0);
   }
@@ -397,51 +444,43 @@
   function weekDone(w){
     return weekSessionsDone(w) === 5;
   }
-  function weekTotalKm(w){
-    const a = Number(w.wedKm)||0;
-    const b = Number(w.sunKm)||0;
-    return a+b;
+  function plannedKm(w){
+    return (parseNumLoose(w.wedKm)||0) + (parseNumLoose(w.sunKm)||0);
+  }
+  function completedKm(w){
+    const wed = (w.checks.wedRun ? (parseNumLoose(w.wedKm)||0) : 0);
+    const sun = (w.checks.sunRun ? (parseNumLoose(w.sunKm)||0) : 0);
+    return wed + sun;
   }
 
   function computeDashboard(){
-    const kmDone = state.weeks.reduce((s,w)=>s+weekTotalKm(w),0);
-    const kmTarget = state.weeks.reduce((s,w)=>s+Number(w.target||0),0);
+    const kmDone = state.weeks.reduce((s,w)=>s+completedKm(w),0);
+    const kmTarget = state.weeks.reduce((s,w)=>s+(parseNumLoose(w.target)||0),0);
     const sessDone = state.weeks.reduce((s,w)=>s+weekSessionsDone(w),0);
     const weeksDone = state.weeks.filter(weekDone).length;
-
     const compliance = (sessDone / (12*5)) || 0;
 
-    // streaks
     let best=0, cur=0, run=0;
     for(const w of state.weeks){
       if(weekDone(w)){ run++; best=Math.max(best,run); }
       else run=0;
     }
-    // current streak from end
     for(let i=state.weeks.length-1;i>=0;i--){
       if(weekDone(state.weeks[i])) cur++;
       else break;
     }
-
     return { kmDone, kmTarget, sessDone, weeksDone, compliance, best, cur };
   }
 
-  function latestLiftSnapshot(weekNum){
+  function liftSnapshot(weekNum){
     const l = state.lifts.find(x=>x.week===weekNum);
     if(!l) return {sq:"—",bp:"—",dl:"—",ohp:"—"};
-    const fmt = (kg,reps)=> (kg && reps) ? `${kg} x ${reps}` : "—";
-    return {
-      sq: fmt(l.squatKg,l.squatReps),
-      bp: fmt(l.benchKg,l.benchReps),
-      dl: fmt(l.deadKg,l.deadReps),
-      ohp: fmt(l.ohpKg,l.ohpReps)
+    const fmt = (kg,reps)=> {
+      const k = parseNumLoose(kg), r = parseNumLoose(reps);
+      return (k!=null && r!=null) ? `${k} x ${r}` : "—";
     };
+    return { sq:fmt(l.squatKg,l.squatReps), bp:fmt(l.benchKg,l.benchReps), dl:fmt(l.deadKg,l.deadReps), ohp:fmt(l.ohpKg,l.ohpReps) };
   }
-
-  // ----------------------------
-  // Rendering
-  // ----------------------------
-  const state = loadState();
 
   function renderWeekPicker(){
     const sel = document.getElementById("weekPicker");
@@ -459,16 +498,17 @@
   function renderWeekSnapshot(weekNum){
     const w = state.weeks.find(x=>x.week===weekNum);
     if(!w) return;
+
     const tag = document.getElementById("weekTag");
     tag.textContent = DELOAD_WEEKS.has(weekNum) ? "Deload" : "Build";
     tag.className = "tag" + (DELOAD_WEEKS.has(weekNum) ? " deload":"");
 
-    document.getElementById("wkWed").textContent = (w.wedKm ?? "—");
-    document.getElementById("wkSun").textContent = (w.sunKm ?? "—");
+    document.getElementById("wkWed").textContent = (parseNumLoose(w.wedKm) ?? "—");
+    document.getElementById("wkSun").textContent = (parseNumLoose(w.sunKm) ?? "—");
     document.getElementById("wkRuns").textContent = `${weekRunsDone(w)}/2`;
     document.getElementById("wkSess").textContent = `${weekSessionsDone(w)}/5`;
 
-    const snap = latestLiftSnapshot(weekNum);
+    const snap = liftSnapshot(weekNum);
     document.getElementById("liftSQ").textContent = snap.sq;
     document.getElementById("liftBP").textContent = snap.bp;
     document.getElementById("liftDL").textContent = snap.dl;
@@ -479,6 +519,7 @@
     const d = computeDashboard();
     document.getElementById("kmDone").textContent = d.kmDone.toFixed(0);
     document.getElementById("kmTarget").textContent = d.kmTarget.toFixed(0);
+
     const diff = d.kmDone - d.kmTarget;
     const diffEl = document.getElementById("kmDiff");
     diffEl.textContent = diff.toFixed(0);
@@ -487,28 +528,45 @@
     document.getElementById("sessDone").textContent = d.sessDone;
     document.getElementById("sessTotal").textContent = 60;
     document.getElementById("compliance").textContent = Math.round(d.compliance*100) + "%";
-
     document.getElementById("streakNow").textContent = d.cur;
     document.getElementById("streakBest").textContent = d.best;
     document.getElementById("weeksDone").textContent = d.weeksDone;
 
-    // table
     const tb = document.getElementById("dashTable");
     tb.innerHTML = "";
     state.weeks.forEach(w=>{
       const tr = document.createElement("tr");
-      const done = weekDone(w);
-      const totalKm = weekTotalKm(w);
       tr.innerHTML = `
         <td class="nowrap">Week ${w.week} ${DELOAD_WEEKS.has(w.week) ? '<span class="tag deload">Deload</span>' : ''}</td>
         <td class="nowrap">${w.target}</td>
-        <td class="nowrap">${totalKm}</td>
+        <td class="nowrap">${completedKm(w)}</td>
         <td class="nowrap">${weekSessionsDone(w)}</td>
-        <td class="nowrap">${done ? '<span class="ok">Yes</span>' : '<span class="muted">No</span>'}</td>
+        <td class="nowrap">${weekDone(w) ? '<span class="ok">Yes</span>' : '<span class="muted">No</span>'}</td>
         <td class="nowrap">${weekRunsDone(w)}</td>
       `;
       tb.appendChild(tr);
     });
+  }
+
+  function makeTextInput(value, placeholder, onUpdate, cls){
+    const inp = document.createElement("input");
+    inp.type = "text";
+    inp.inputMode = "decimal";
+    inp.placeholder = placeholder || "";
+    inp.value = (value ?? "");
+    if(cls) inp.className = cls;
+    inp.addEventListener("input", (e)=>onUpdate(e.target.value));
+    inp.addEventListener("blur", (e)=>onUpdate(e.target.value));
+    return inp;
+  }
+
+  function makeCheckbox(value, onChange){
+    const inp = document.createElement("input");
+    inp.type = "checkbox";
+    inp.className = "chk";
+    inp.checked = !!value;
+    inp.addEventListener("change", (e)=>onChange(e.target.checked));
+    return inp;
   }
 
   function renderWeeksTable(){
@@ -521,57 +579,39 @@
         tr.style.background = "rgba(245,158,11,.08)";
       }
 
-      const mkNum = (value, onChange)=> {
-        const inp = document.createElement("input");
-        inp.type = "number";
-        inp.inputMode = "numeric";
-        inp.value = (value ?? "");
-        inp.addEventListener("change", onChange);
-        inp.addEventListener("blur", onChange);
-        return inp;
-      };
-
-      const mkChk = (value, onChange)=>{
-        const inp = document.createElement("input");
-        inp.type = "checkbox";
-        inp.className = "chk";
-        inp.checked = !!value;
-        inp.addEventListener("change", onChange);
-        return inp;
-      };
-
       const tdWeek = document.createElement("td");
       tdWeek.innerHTML = `Week ${w.week} ${DELOAD_WEEKS.has(w.week) ? '<span class="tag deload">Deload</span>' : ''}`;
 
       const tdTarget = document.createElement("td"); tdTarget.textContent = w.target;
 
       const tdWed = document.createElement("td");
-      tdWed.appendChild(mkNum(w.wedKm, (e)=>{ w.wedKm = Number(e.target.value)||0; saveState(); rerenderAll(); }));
+      tdWed.appendChild(makeTextInput(w.wedKm, "km", (v)=>{ w.wedKm = parseNumLoose(v) ?? 0; saveState(); rerenderAll(); }, "rep-input"));
 
       const tdSun = document.createElement("td");
-      tdSun.appendChild(mkNum(w.sunKm, (e)=>{ w.sunKm = Number(e.target.value)||0; saveState(); rerenderAll(); }));
+      tdSun.appendChild(makeTextInput(w.sunKm, "km", (v)=>{ w.sunKm = parseNumLoose(v) ?? 0; saveState(); rerenderAll(); }, "rep-input"));
 
       const tdMon = document.createElement("td");
-      tdMon.appendChild(mkChk(w.checks.mon, (e)=>{ w.checks.mon = e.target.checked; saveState(); rerenderAll(); }));
+      tdMon.appendChild(makeCheckbox(w.checks.mon, (val)=>{ w.checks.mon=val; saveState(); rerenderAll(); }));
 
       const tdTue = document.createElement("td");
-      tdTue.appendChild(mkChk(w.checks.tue, (e)=>{ w.checks.tue = e.target.checked; saveState(); rerenderAll(); }));
+      tdTue.appendChild(makeCheckbox(w.checks.tue, (val)=>{ w.checks.tue=val; saveState(); rerenderAll(); }));
 
       const tdThu = document.createElement("td");
-      tdThu.appendChild(mkChk(w.checks.thu, (e)=>{ w.checks.thu = e.target.checked; saveState(); rerenderAll(); }));
+      tdThu.appendChild(makeCheckbox(w.checks.thu, (val)=>{ w.checks.thu=val; saveState(); rerenderAll(); }));
 
       const tdWedRun = document.createElement("td");
-      tdWedRun.appendChild(mkChk(w.checks.wedRun, (e)=>{ w.checks.wedRun = e.target.checked; saveState(); rerenderAll(); }));
+      tdWedRun.appendChild(makeCheckbox(w.checks.wedRun, (val)=>{ w.checks.wedRun=val; saveState(); rerenderAll(); }));
 
       const tdSunRun = document.createElement("td");
-      tdSunRun.appendChild(mkChk(w.checks.sunRun, (e)=>{ w.checks.sunRun = e.target.checked; saveState(); rerenderAll(); }));
+      tdSunRun.appendChild(makeCheckbox(w.checks.sunRun, (val)=>{ w.checks.sunRun=val; saveState(); rerenderAll(); }));
 
       const tdRuns = document.createElement("td"); tdRuns.textContent = weekRunsDone(w);
       const tdSess = document.createElement("td"); tdSess.textContent = weekSessionsDone(w);
       const tdDone = document.createElement("td"); tdDone.innerHTML = weekDone(w) ? '<span class="ok">Yes</span>' : '<span class="muted">No</span>';
-      const tdTot = document.createElement("td"); tdTot.textContent = weekTotalKm(w);
+      const tdPlanned = document.createElement("td"); tdPlanned.textContent = plannedKm(w);
+      const tdCompleted = document.createElement("td"); tdCompleted.textContent = completedKm(w);
 
-      [tdWeek,tdTarget,tdWed,tdSun,tdMon,tdTue,tdThu,tdWedRun,tdSunRun,tdRuns,tdSess,tdDone,tdTot].forEach(td=>tr.appendChild(td));
+      [tdWeek,tdTarget,tdWed,tdSun,tdMon,tdTue,tdThu,tdWedRun,tdSunRun,tdRuns,tdSess,tdDone,tdPlanned,tdCompleted].forEach(td=>tr.appendChild(td));
       tb.appendChild(tr);
     });
   }
@@ -579,25 +619,6 @@
   function renderLiftTable(){
     const tb = document.getElementById("liftTable");
     tb.innerHTML = "";
-
-    const mkNum = (value, onChange)=> {
-      const inp = document.createElement("input");
-      inp.type = "number";
-      inp.inputMode = "numeric";
-      inp.value = (value ?? "");
-      inp.addEventListener("change", onChange);
-      inp.addEventListener("blur", onChange);
-      return inp;
-    };
-
-    const mkTxt = (value, onChange)=>{
-      const inp = document.createElement("input");
-      inp.type = "text";
-      inp.value = value ?? "";
-      inp.addEventListener("change", onChange);
-      inp.addEventListener("blur", onChange);
-      return inp;
-    };
 
     state.lifts.forEach(l=>{
       const tr = document.createElement("tr");
@@ -614,60 +635,53 @@
       tdWeek.innerHTML = `Week ${l.week} ${DELOAD_WEEKS.has(l.week) ? '<span class="tag deload">Deload</span>' : ''}`;
 
       const tdSQkg = document.createElement("td");
-      tdSQkg.appendChild(mkNum(l.squatKg, e=>{ l.squatKg = valOrNull(e.target.value); saveState(); rerenderAll(); }));
+      tdSQkg.appendChild(makeTextInput(l.squatKg, "kg", (v)=>{ l.squatKg = parseNumLoose(v); saveState(); rerenderAll(); }, "lift-input"));
 
       const tdSQr = document.createElement("td");
-      tdSQr.appendChild(mkNum(l.squatReps, e=>{ l.squatReps = valOrNull(e.target.value); saveState(); rerenderAll(); }));
+      tdSQr.appendChild(makeTextInput(l.squatReps, "reps", (v)=>{ l.squatReps = parseNumLoose(v); saveState(); rerenderAll(); }, "rep-input"));
 
       const tdSQe = document.createElement("td");
       tdSQe.textContent = eSQ ? eSQ.toFixed(1) : "—";
 
       const tdBPkg = document.createElement("td");
-      tdBPkg.appendChild(mkNum(l.benchKg, e=>{ l.benchKg = valOrNull(e.target.value); saveState(); rerenderAll(); }));
+      tdBPkg.appendChild(makeTextInput(l.benchKg, "kg", (v)=>{ l.benchKg = parseNumLoose(v); saveState(); rerenderAll(); }, "lift-input"));
 
       const tdBPr = document.createElement("td");
-      tdBPr.appendChild(mkNum(l.benchReps, e=>{ l.benchReps = valOrNull(e.target.value); saveState(); rerenderAll(); }));
+      tdBPr.appendChild(makeTextInput(l.benchReps, "reps", (v)=>{ l.benchReps = parseNumLoose(v); saveState(); rerenderAll(); }, "rep-input"));
 
       const tdBPe = document.createElement("td");
       tdBPe.textContent = eBP ? eBP.toFixed(1) : "—";
 
       const tdDLkg = document.createElement("td");
-      tdDLkg.appendChild(mkNum(l.deadKg, e=>{ l.deadKg = valOrNull(e.target.value); saveState(); rerenderAll(); }));
+      tdDLkg.appendChild(makeTextInput(l.deadKg, "kg", (v)=>{ l.deadKg = parseNumLoose(v); saveState(); rerenderAll(); }, "lift-input"));
 
       const tdDLr = document.createElement("td");
-      tdDLr.appendChild(mkNum(l.deadReps, e=>{ l.deadReps = valOrNull(e.target.value); saveState(); rerenderAll(); }));
+      tdDLr.appendChild(makeTextInput(l.deadReps, "reps", (v)=>{ l.deadReps = parseNumLoose(v); saveState(); rerenderAll(); }, "rep-input"));
 
       const tdDLe = document.createElement("td");
       tdDLe.textContent = eDL ? eDL.toFixed(1) : "—";
 
       const tdOHPkg = document.createElement("td");
-      tdOHPkg.appendChild(mkNum(l.ohpKg, e=>{ l.ohpKg = valOrNull(e.target.value); saveState(); rerenderAll(); }));
+      tdOHPkg.appendChild(makeTextInput(l.ohpKg, "kg", (v)=>{ l.ohpKg = parseNumLoose(v); saveState(); rerenderAll(); }, "lift-input"));
 
       const tdOHPr = document.createElement("td");
-      tdOHPr.appendChild(mkNum(l.ohpReps, e=>{ l.ohpReps = valOrNull(e.target.value); saveState(); rerenderAll(); }));
+      tdOHPr.appendChild(makeTextInput(l.ohpReps, "reps", (v)=>{ l.ohpReps = parseNumLoose(v); saveState(); rerenderAll(); }, "rep-input"));
 
       const tdOHPe = document.createElement("td");
       tdOHPe.textContent = eOHP ? eOHP.toFixed(1) : "—";
 
       const tdNotes = document.createElement("td");
-      tdNotes.appendChild(mkTxt(l.notes, e=>{ l.notes = e.target.value; saveState(); }));
+      tdNotes.appendChild(makeTextInput(l.notes, "notes…", (v)=>{ l.notes = v; saveState(); }, "notes-input"));
 
       [tdWeek,
-       tdSQkg,tdSQr,tdSQe,
-       tdBPkg,tdBPr,tdBPe,
-       tdDLkg,tdDLr,tdDLe,
-       tdOHPkg,tdOHPr,tdOHPe,
-       tdNotes
+        tdSQkg,tdSQr,tdSQe,
+        tdBPkg,tdBPr,tdBPe,
+        tdDLkg,tdDLr,tdDLe,
+        tdOHPkg,tdOHPr,tdOHPe,
+        tdNotes
       ].forEach(td=>tr.appendChild(td));
       tb.appendChild(tr);
     });
-  }
-
-  function valOrNull(v){
-    if(v==="" || v==null) return null;
-    const n = Number(v);
-    if(!isFinite(n)) return null;
-    return n;
   }
 
   function rerenderAll(){
@@ -678,9 +692,6 @@
     if(sel) renderWeekSnapshot(Number(sel.value));
   }
 
-  // ----------------------------
-  // Tabs
-  // ----------------------------
   document.querySelectorAll(".tab").forEach(btn=>{
     btn.addEventListener("click", ()=>{
       document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
@@ -688,14 +699,10 @@
       const tab = btn.dataset.tab;
       document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
       document.getElementById(tab).classList.add("active");
-      // render on demand
       rerenderAll();
     });
   });
 
-  // ----------------------------
-  // Actions
-  // ----------------------------
   document.getElementById("resetWeekChecks").addEventListener("click", ()=>{
     if(!confirm("Reset ALL session checkboxes for all weeks?")) return;
     state.weeks.forEach(w=>{
@@ -723,6 +730,24 @@
     toast("Exported JSON.");
   });
 
+  document.getElementById("shareBtn").addEventListener("click", async ()=>{
+    const data = JSON.stringify(state, null, 2);
+    const file = new File([data], "hybrid-tracker-backup.json", {type:"application/json"});
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ title: "Hybrid Tracker Backup", files: [file] }); toast("Shared backup."); }
+      catch (_) {}
+    } else {
+      const blob = new Blob([data], {type:"application/json"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "hybrid-tracker-backup.json";
+      a.click();
+      URL.revokeObjectURL(url);
+      toast("Downloaded backup (share not supported).");
+    }
+  });
+
   document.getElementById("importFile").addEventListener("change", async (e)=>{
     const file = e.target.files?.[0];
     if(!file) return;
@@ -730,7 +755,6 @@
       const text = await file.text();
       const parsed = JSON.parse(text);
       if(!parsed.weeks || !parsed.lifts) throw new Error("Invalid file.");
-      // simple compatibility checks
       localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
       toast("Imported. Reloading…");
       setTimeout(()=>location.reload(), 600);
@@ -742,7 +766,6 @@
   });
 
   document.getElementById("fillExample").addEventListener("click", ()=>{
-    // harmless quick example
     state.lifts[0].squatKg = 80; state.lifts[0].squatReps = 8;
     state.lifts[0].benchKg = 80; state.lifts[0].benchReps = 8;
     state.lifts[0].deadKg = 120; state.lifts[0].deadReps = 6;
@@ -752,9 +775,7 @@
     rerenderAll();
   });
 
-  // ----------------------------
   // Init
-  // ----------------------------
   renderWeekPicker();
   rerenderAll();
   renderWeekSnapshot(1);
