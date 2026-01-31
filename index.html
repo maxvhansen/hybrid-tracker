@@ -166,24 +166,27 @@
       border-radius:12px;
     }
     table.wide{ min-width: 980px; }
-    .lift-input{
-      min-width: 96px;   /* key: stops values like "80" disappearing */
-      text-align:right;
-    }
-    .rep-input{
-      min-width: 72px;
-      text-align:right;
-    }
-    .notes-input{
-      min-width: 180px;
-      text-align:left;
-    }
+    .lift-input{ min-width: 104px; text-align:right; }
+    .rep-input{ min-width: 72px; text-align:right; }
+    .notes-input{ min-width: 220px; text-align:left; }
     @media (max-width:480px){
       th, td { padding: 8px 6px; }
-      table.wide{ min-width: 1040px; }  /* keep columns from collapsing */
-      .lift-input{ min-width: 104px; }
-      .notes-input{ min-width: 220px; }
+      table.wide{ min-width: 1040px; }
+      .lift-input{ min-width: 112px; }
+      .notes-input{ min-width: 260px; }
     }
+
+    /* Program cards */
+    .prog-day{display:grid; gap:8px}
+    .prog-item{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px;
+      background:rgba(15,23,42,.55);
+    }
+    .prog-item h3{margin:0 0 6px; font-size:13px}
+    .prog-list{margin:0; padding-left:18px; color:var(--text); font-size:12px; line-height:1.45}
+    .prog-note{margin-top:8px; color:var(--muted); font-size:12px}
   </style>
 </head>
 <body>
@@ -193,6 +196,7 @@
     <button class="tab active" data-tab="dash">Dashboard</button>
     <button class="tab" data-tab="weeks">12-Week Plan</button>
     <button class="tab" data-tab="lifts">Lift Tracker</button>
+    <button class="tab" data-tab="program">Program</button>
     <button class="tab" data-tab="settings">Backup</button>
   </div>
 </header>
@@ -304,7 +308,9 @@
   <section id="lifts" class="section">
     <div class="card">
       <h2>Lift Tracker (Weekly Top Set)</h2>
-      <p class="muted">Mobile friendly: inputs are wider and the table scrolls horizontally. e1RM uses Epley.</p>
+      <p class="muted">
+        ✅ Keyboard stays open while you type. e1RM updates live.
+      </p>
 
       <div class="table-scroll" style="margin-top:10px">
         <table class="wide">
@@ -324,6 +330,88 @@
 
       <div class="footer-actions">
         <button class="btn" id="fillExample">Fill example (optional)</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROGRAM -->
+  <section id="program" class="section">
+    <div class="card">
+      <h2>Weekly Program</h2>
+      <p class="muted">
+        Simple hybrid: 3 lifts + 2 runs. Friday rest. Sunday long run.
+        Keep sessions ~60 minutes. Compound focus + aesthetics.
+      </p>
+
+      <div class="grid two" style="margin-top:10px">
+        <div class="prog-day">
+          <div class="prog-item">
+            <h3>Monday — Upper Strength (60 min)</h3>
+            <ul class="prog-list">
+              <li>Bench Press — 4×6–8 (RPE 7–8)</li>
+              <li>Pull-ups or Lat Pulldown — 4×6–10</li>
+              <li>Incline DB Press — 3×8–12</li>
+              <li>Row (chest-supported or cable) — 3×8–12</li>
+              <li>Lateral Raises — 2×12–20</li>
+              <li>Optional: Triceps + Curls — 2×10–15 each</li>
+            </ul>
+            <div class="prog-note">Progression: add 1 rep each week, then +2.5 kg when you hit top reps on all sets.</div>
+          </div>
+
+          <div class="prog-item">
+            <h3>Wednesday — Run (Quality-lite, Achilles-friendly)</h3>
+            <ul class="prog-list">
+              <li>Warm-up 10 min easy + 3×20s strides (optional)</li>
+              <li>Main: 20–35 min steady “comfortably hard” (no maxing)</li>
+              <li>Cool-down 5–10 min easy</li>
+            </ul>
+            <div class="prog-note">If Achilles is sore: swap strides for brisk walk, and keep it fully easy.</div>
+          </div>
+
+          <div class="prog-item">
+            <h3>Friday — Rest</h3>
+            <ul class="prog-list">
+              <li>Optional 10–15 min mobility</li>
+              <li>Optional Achilles calf isometrics (pain-free)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="prog-day">
+          <div class="prog-item">
+            <h3>Tuesday — Lower Strength (60 min)</h3>
+            <ul class="prog-list">
+              <li>Squat (back or safety bar) — 4×5–8</li>
+              <li>Romanian Deadlift — 3×6–10</li>
+              <li>Split Squat or Leg Press — 3×8–12</li>
+              <li>Hamstring Curl — 2×10–15</li>
+              <li>Calf Raises (slow) — 2×8–12 (pain-free)</li>
+              <li>Core (plank / dead bug) — 2–3 sets</li>
+            </ul>
+            <div class="prog-note">If Achilles flares: reduce calf volume and avoid aggressive bouncing.</div>
+          </div>
+
+          <div class="prog-item">
+            <h3>Thursday — Full Body Hypertrophy (60 min)</h3>
+            <ul class="prog-list">
+              <li>Deadlift (or trap bar) — 3×4–6 (moderate, crisp reps)</li>
+              <li>Overhead Press — 3×6–10</li>
+              <li>Chin-ups or Pulldown — 3×8–12</li>
+              <li>Hip Hinge/Glute (hip thrust or back extension) — 2–3×8–12</li>
+              <li>Arms superset (curl + triceps) — 2×10–15</li>
+            </ul>
+            <div class="prog-note">Keep deadlift submax. Goal: stimulus, not wrecked recovery for Sunday.</div>
+          </div>
+
+          <div class="prog-item">
+            <h3>Sunday — Long Easy Run</h3>
+            <ul class="prog-list">
+              <li>Easy pace (can talk in sentences)</li>
+              <li>Use the planned km from your 12-week table</li>
+            </ul>
+            <div class="prog-note">If Achilles is angry: walk-run (e.g., 4 min run / 1 min walk).</div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -364,7 +452,7 @@
 
   const DEFAULT_TARGETS = [20,22,24,20,25,27,28,22,29,30,30,24];
   const DELOAD_WEEKS = new Set([4,8,12]);
-  const STORAGE_KEY = "hybrid_tracker_v2";
+  const STORAGE_KEY = "hybrid_tracker_v3";
 
   function makeDefaultState(){
     const weeks = DEFAULT_TARGETS.map((t, idx) => {
@@ -405,7 +493,15 @@
 
   const state = loadState();
 
-  function saveState(){
+  // Save without re-rendering (keeps keyboard open)
+  let saveTimer = null;
+  function saveStateDebounced(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(()=>{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }, 120);
+  }
+  function saveStateNow(){
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }
 
@@ -548,15 +644,17 @@
     });
   }
 
-  function makeTextInput(value, placeholder, onUpdate, cls){
+  function makeTextInput(value, placeholder, onInput, onCommit, cls){
     const inp = document.createElement("input");
     inp.type = "text";
     inp.inputMode = "decimal";
     inp.placeholder = placeholder || "";
     inp.value = (value ?? "");
     if(cls) inp.className = cls;
-    inp.addEventListener("input", (e)=>onUpdate(e.target.value));
-    inp.addEventListener("blur", (e)=>onUpdate(e.target.value));
+
+    // key fix: do NOT re-render while typing (keeps keyboard open)
+    inp.addEventListener("input", (e)=>onInput(e.target.value));
+    inp.addEventListener("blur", (e)=>onCommit(e.target.value));
     return inp;
   }
 
@@ -585,25 +683,35 @@
       const tdTarget = document.createElement("td"); tdTarget.textContent = w.target;
 
       const tdWed = document.createElement("td");
-      tdWed.appendChild(makeTextInput(w.wedKm, "km", (v)=>{ w.wedKm = parseNumLoose(v) ?? 0; saveState(); rerenderAll(); }, "rep-input"));
+      tdWed.appendChild(makeTextInput(
+        w.wedKm, "km",
+        (v)=>{ w.wedKm = parseNumLoose(v) ?? 0; saveStateDebounced(); },   // input: no rerender
+        (v)=>{ w.wedKm = parseNumLoose(v) ?? 0; saveStateNow(); rerenderAll(); },
+        "rep-input"
+      ));
 
       const tdSun = document.createElement("td");
-      tdSun.appendChild(makeTextInput(w.sunKm, "km", (v)=>{ w.sunKm = parseNumLoose(v) ?? 0; saveState(); rerenderAll(); }, "rep-input"));
+      tdSun.appendChild(makeTextInput(
+        w.sunKm, "km",
+        (v)=>{ w.sunKm = parseNumLoose(v) ?? 0; saveStateDebounced(); },
+        (v)=>{ w.sunKm = parseNumLoose(v) ?? 0; saveStateNow(); rerenderAll(); },
+        "rep-input"
+      ));
 
       const tdMon = document.createElement("td");
-      tdMon.appendChild(makeCheckbox(w.checks.mon, (val)=>{ w.checks.mon=val; saveState(); rerenderAll(); }));
+      tdMon.appendChild(makeCheckbox(w.checks.mon, (val)=>{ w.checks.mon=val; saveStateNow(); rerenderAll(); }));
 
       const tdTue = document.createElement("td");
-      tdTue.appendChild(makeCheckbox(w.checks.tue, (val)=>{ w.checks.tue=val; saveState(); rerenderAll(); }));
+      tdTue.appendChild(makeCheckbox(w.checks.tue, (val)=>{ w.checks.tue=val; saveStateNow(); rerenderAll(); }));
 
       const tdThu = document.createElement("td");
-      tdThu.appendChild(makeCheckbox(w.checks.thu, (val)=>{ w.checks.thu=val; saveState(); rerenderAll(); }));
+      tdThu.appendChild(makeCheckbox(w.checks.thu, (val)=>{ w.checks.thu=val; saveStateNow(); rerenderAll(); }));
 
       const tdWedRun = document.createElement("td");
-      tdWedRun.appendChild(makeCheckbox(w.checks.wedRun, (val)=>{ w.checks.wedRun=val; saveState(); rerenderAll(); }));
+      tdWedRun.appendChild(makeCheckbox(w.checks.wedRun, (val)=>{ w.checks.wedRun=val; saveStateNow(); rerenderAll(); }));
 
       const tdSunRun = document.createElement("td");
-      tdSunRun.appendChild(makeCheckbox(w.checks.sunRun, (val)=>{ w.checks.sunRun=val; saveState(); rerenderAll(); }));
+      tdSunRun.appendChild(makeCheckbox(w.checks.sunRun, (val)=>{ w.checks.sunRun=val; saveStateNow(); rerenderAll(); }));
 
       const tdRuns = document.createElement("td"); tdRuns.textContent = weekRunsDone(w);
       const tdSess = document.createElement("td"); tdSess.textContent = weekSessionsDone(w);
@@ -626,60 +734,122 @@
         tr.style.background = "rgba(245,158,11,.08)";
       }
 
-      const eSQ = e1rm(l.squatKg, l.squatReps);
-      const eBP = e1rm(l.benchKg, l.benchReps);
-      const eDL = e1rm(l.deadKg, l.deadReps);
-      const eOHP= e1rm(l.ohpKg, l.ohpReps);
+      // e1RM cells so we can update them live without re-rendering
+      const tdSQe = document.createElement("td");
+      const tdBPe = document.createElement("td");
+      const tdDLe = document.createElement("td");
+      const tdOHPe = document.createElement("td");
+
+      function updateE1RMs(){
+        const s = e1rm(l.squatKg, l.squatReps);
+        const b = e1rm(l.benchKg, l.benchReps);
+        const d = e1rm(l.deadKg, l.deadReps);
+        const o = e1rm(l.ohpKg, l.ohpReps);
+        tdSQe.textContent = s ? s.toFixed(1) : "—";
+        tdBPe.textContent = b ? b.toFixed(1) : "—";
+        tdDLe.textContent = d ? d.toFixed(1) : "—";
+        tdOHPe.textContent = o ? o.toFixed(1) : "—";
+      }
 
       const tdWeek = document.createElement("td");
       tdWeek.innerHTML = `Week ${l.week} ${DELOAD_WEEKS.has(l.week) ? '<span class="tag deload">Deload</span>' : ''}`;
 
       const tdSQkg = document.createElement("td");
-      tdSQkg.appendChild(makeTextInput(l.squatKg, "kg", (v)=>{ l.squatKg = parseNumLoose(v); saveState(); rerenderAll(); }, "lift-input"));
+      tdSQkg.appendChild(makeTextInput(
+        l.squatKg, "kg",
+        (v)=>{ l.squatKg = v; updateE1RMs(); saveStateDebounced(); },     // keep keyboard open
+        (v)=>{ l.squatKg = v; updateE1RMs(); saveStateNow(); rerenderAll(); },
+        "lift-input"
+      ));
 
       const tdSQr = document.createElement("td");
-      tdSQr.appendChild(makeTextInput(l.squatReps, "reps", (v)=>{ l.squatReps = parseNumLoose(v); saveState(); rerenderAll(); }, "rep-input"));
-
-      const tdSQe = document.createElement("td");
-      tdSQe.textContent = eSQ ? eSQ.toFixed(1) : "—";
+      tdSQr.appendChild(makeTextInput(
+        l.squatReps, "reps",
+        (v)=>{ l.squatReps = v; updateE1RMs(); saveStateDebounced(); },
+        (v)=>{ l.squatReps = v; updateE1RMs(); saveStateNow(); rerenderAll(); },
+        "rep-input"
+      ));
 
       const tdBPkg = document.createElement("td");
-      tdBPkg.appendChild(makeTextInput(l.benchKg, "kg", (v)=>{ l.benchKg = parseNumLoose(v); saveState(); rerenderAll(); }, "lift-input"));
+      tdBPkg.appendChild(makeTextInput(
+        l.benchKg, "kg",
+        (v)=>{ l.benchKg = v; updateE1RMs(); saveStateDebounced(); },
+        (v)=>{ l.benchKg = v; updateE1RMs(); saveStateNow(); rerenderAll(); },
+        "lift-input"
+      ));
 
       const tdBPr = document.createElement("td");
-      tdBPr.appendChild(makeTextInput(l.benchReps, "reps", (v)=>{ l.benchReps = parseNumLoose(v); saveState(); rerenderAll(); }, "rep-input"));
-
-      const tdBPe = document.createElement("td");
-      tdBPe.textContent = eBP ? eBP.toFixed(1) : "—";
+      tdBPr.appendChild(makeTextInput(
+        l.benchReps, "reps",
+        (v)=>{ l.benchReps = v; updateE1RMs(); saveStateDebounced(); },
+        (v)=>{ l.benchReps = v; updateE1RMs(); saveStateNow(); rerenderAll(); },
+        "rep-input"
+      ));
 
       const tdDLkg = document.createElement("td");
-      tdDLkg.appendChild(makeTextInput(l.deadKg, "kg", (v)=>{ l.deadKg = parseNumLoose(v); saveState(); rerenderAll(); }, "lift-input"));
+      tdDLkg.appendChild(makeTextInput(
+        l.deadKg, "kg",
+        (v)=>{ l.deadKg = v; updateE1RMs(); saveStateDebounced(); },
+        (v)=>{ l.deadKg = v; updateE1RMs(); saveStateNow(); rerenderAll(); },
+        "lift-input"
+      ));
 
       const tdDLr = document.createElement("td");
-      tdDLr.appendChild(makeTextInput(l.deadReps, "reps", (v)=>{ l.deadReps = parseNumLoose(v); saveState(); rerenderAll(); }, "rep-input"));
-
-      const tdDLe = document.createElement("td");
-      tdDLe.textContent = eDL ? eDL.toFixed(1) : "—";
+      tdDLr.appendChild(makeTextInput(
+        l.deadReps, "reps",
+        (v)=>{ l.deadReps = v; updateE1RMs(); saveStateDebounced(); },
+        (v)=>{ l.deadReps = v; updateE1RMs(); saveStateNow(); rerenderAll(); },
+        "rep-input"
+      ));
 
       const tdOHPkg = document.createElement("td");
-      tdOHPkg.appendChild(makeTextInput(l.ohpKg, "kg", (v)=>{ l.ohpKg = parseNumLoose(v); saveState(); rerenderAll(); }, "lift-input"));
+      tdOHPkg.appendChild(makeTextInput(
+        l.ohpKg, "kg",
+        (v)=>{ l.ohpKg = v; updateE1RMs(); saveStateDebounced(); },
+        (v)=>{ l.ohpKg = v; updateE1RMs(); saveStateNow(); rerenderAll(); },
+        "lift-input"
+      ));
 
       const tdOHPr = document.createElement("td");
-      tdOHPr.appendChild(makeTextInput(l.ohpReps, "reps", (v)=>{ l.ohpReps = parseNumLoose(v); saveState(); rerenderAll(); }, "rep-input"));
-
-      const tdOHPe = document.createElement("td");
-      tdOHPe.textContent = eOHP ? eOHP.toFixed(1) : "—";
+      tdOHPr.appendChild(makeTextInput(
+        l.ohpReps, "reps",
+        (v)=>{ l.ohpReps = v; updateE1RMs(); saveStateDebounced(); },
+        (v)=>{ l.ohpReps = v; updateE1RMs(); saveStateNow(); rerenderAll(); },
+        "rep-input"
+      ));
 
       const tdNotes = document.createElement("td");
-      tdNotes.appendChild(makeTextInput(l.notes, "notes…", (v)=>{ l.notes = v; saveState(); }, "notes-input"));
+      tdNotes.appendChild(makeTextInput(
+        l.notes, "notes…",
+        (v)=>{ l.notes = v; saveStateDebounced(); },        // no rerender
+        (v)=>{ l.notes = v; saveStateNow(); },
+        "notes-input"
+      ));
 
-      [tdWeek,
-        tdSQkg,tdSQr,tdSQe,
-        tdBPkg,tdBPr,tdBPe,
-        tdDLkg,tdDLr,tdDLe,
-        tdOHPkg,tdOHPr,tdOHPe,
-        tdNotes
-      ].forEach(td=>tr.appendChild(td));
+      // initialize e1RM cells
+      updateE1RMs();
+
+      // Row order
+      tr.appendChild(tdWeek);
+
+      tr.appendChild(tdSQkg);
+      tr.appendChild(tdSQr);
+      tr.appendChild(tdSQe);
+
+      tr.appendChild(tdBPkg);
+      tr.appendChild(tdBPr);
+      tr.appendChild(tdBPe);
+
+      tr.appendChild(tdDLkg);
+      tr.appendChild(tdDLr);
+      tr.appendChild(tdDLe);
+
+      tr.appendChild(tdOHPkg);
+      tr.appendChild(tdOHPr);
+      tr.appendChild(tdOHPe);
+
+      tr.appendChild(tdNotes);
+
       tb.appendChild(tr);
     });
   }
@@ -687,11 +857,13 @@
   function rerenderAll(){
     renderDashboard();
     renderWeeksTable();
+    // lift table is already live-updating per row, but we keep this for cross-page totals
     renderLiftTable();
     const sel = document.getElementById("weekPicker");
     if(sel) renderWeekSnapshot(Number(sel.value));
   }
 
+  // Tabs
   document.querySelectorAll(".tab").forEach(btn=>{
     btn.addEventListener("click", ()=>{
       document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
@@ -703,12 +875,13 @@
     });
   });
 
+  // Actions
   document.getElementById("resetWeekChecks").addEventListener("click", ()=>{
     if(!confirm("Reset ALL session checkboxes for all weeks?")) return;
     state.weeks.forEach(w=>{
       w.checks.mon=false; w.checks.tue=false; w.checks.thu=false; w.checks.wedRun=false; w.checks.sunRun=false;
     });
-    saveState();
+    saveStateNow();
     toast("Checkboxes reset.");
     rerenderAll();
   });
@@ -766,11 +939,11 @@
   });
 
   document.getElementById("fillExample").addEventListener("click", ()=>{
-    state.lifts[0].squatKg = 80; state.lifts[0].squatReps = 8;
-    state.lifts[0].benchKg = 80; state.lifts[0].benchReps = 8;
-    state.lifts[0].deadKg = 120; state.lifts[0].deadReps = 6;
-    state.lifts[0].ohpKg = 50; state.lifts[0].ohpReps = 8;
-    saveState();
+    state.lifts[0].squatKg = "80"; state.lifts[0].squatReps = "8";
+    state.lifts[0].benchKg = "80"; state.lifts[0].benchReps = "8";
+    state.lifts[0].deadKg = "120"; state.lifts[0].deadReps = "6";
+    state.lifts[0].ohpKg = "50"; state.lifts[0].ohpReps = "8";
+    saveStateNow();
     toast("Example filled (Week 1).");
     rerenderAll();
   });
