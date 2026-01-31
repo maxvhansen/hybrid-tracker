@@ -1,4 +1,4 @@
-const CACHE_NAME = "hybrid-tracker-cache-v1";
+const CACHE_NAME = "hybrid-tracker-cache-v3"; // <-- bump this whenever you update
 const ASSETS = [
   "./",
   "./index.html",
@@ -23,8 +23,26 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
+// Network-first for HTML so updates show immediately
 self.addEventListener("fetch", (event) => {
+  const req = event.request;
+  const isHTML = req.headers.get("accept")?.includes("text/html");
+
+  if (isHTML) {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(req, copy));
+          return res;
+        })
+        .catch(() => caches.match(req))
+    );
+    return;
+  }
+
+  // Cache-first for everything else
   event.respondWith(
-    caches.match(event.request).then((cached) => cached || fetch(event.request))
+    caches.match(req).then((cached) => cached || fetch(req))
   );
 });
