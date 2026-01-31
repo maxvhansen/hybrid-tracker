@@ -1,0 +1,763 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hybrid 12-Week Tracker</title>
+  <meta name="theme-color" content="#111827" />
+  <style>
+    :root{
+      --bg:#0b1220;
+      --card:#111827;
+      --muted:#9ca3af;
+      --text:#e5e7eb;
+      --line:#1f2937;
+      --accent:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background:linear-gradient(180deg,#070b14,var(--bg));
+      color:var(--text);
+    }
+    header{
+      position:sticky; top:0; z-index:10;
+      background:rgba(7,11,20,.92);
+      backdrop-filter: blur(10px);
+      border-bottom:1px solid var(--line);
+      padding:14px 14px 10px;
+    }
+    h1{margin:0; font-size:16px; letter-spacing:.2px}
+    .tabs{
+      display:flex; gap:8px; margin-top:10px;
+      overflow:auto; padding-bottom:4px;
+    }
+    .tab{
+      border:1px solid var(--line);
+      background:transparent;
+      color:var(--text);
+      padding:8px 10px;
+      border-radius:12px;
+      font-size:13px;
+      white-space:nowrap;
+      cursor:pointer;
+    }
+    .tab.active{background:#0f172a; border-color:#2b3648}
+    main{padding:14px; max-width:1050px; margin:0 auto}
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+    }
+    @media(min-width:900px){
+      .grid.two{grid-template-columns:1fr 1fr}
+      .grid.three{grid-template-columns:1fr 1fr 1fr}
+    }
+    .card{
+      background:rgba(17,24,39,.86);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.18);
+    }
+    .card h2{margin:0 0 8px; font-size:14px}
+    .muted{color:var(--muted); font-size:12px; line-height:1.35}
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .pill{
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:12px;
+      color:var(--muted);
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+    }
+    .pill strong{color:var(--text); font-weight:600}
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:12px;
+      overflow:hidden;
+      border-radius:12px;
+    }
+    th,td{
+      border-bottom:1px solid var(--line);
+      padding:10px 8px;
+      vertical-align:middle;
+    }
+    th{color:var(--muted); font-weight:600; text-align:left; position:sticky; top:0; background:rgba(17,24,39,.96)}
+    tr:last-child td{border-bottom:none}
+    input[type="number"], input[type="text"]{
+      width:100%;
+      background:#0b1220;
+      color:var(--text);
+      border:1px solid #243043;
+      padding:8px 10px;
+      border-radius:10px;
+      font-size:13px;
+      outline:none;
+    }
+    input[type="number"]{appearance:textfield}
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button{appearance:none; margin:0}
+    .chk{
+      transform: scale(1.15);
+      width:18px; height:18px;
+      accent-color: var(--accent);
+    }
+    .btn{
+      border:1px solid #2b3648;
+      background:#0f172a;
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      font-size:13px;
+      cursor:pointer;
+    }
+    .btn.primary{border-color:#1f3a2a; background:#0d1f16}
+    .btn.danger{border-color:#3b1a1a; background:#1c0b0b}
+    .btn:active{transform:translateY(1px)}
+    .small{font-size:11px}
+    .ok{color:var(--accent)}
+    .warn{color:var(--warn)}
+    .bad{color:var(--bad)}
+    .section{display:none}
+    .section.active{display:block}
+    .right{text-align:right}
+    .nowrap{white-space:nowrap}
+    .tag{
+      font-size:11px;
+      padding:3px 8px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      color:var(--muted);
+    }
+    .tag.deload{border-color:#3b3a1a; color:#fbbf24}
+    .footer-actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
+    .toast{
+      position:fixed; left:50%; transform:translateX(-50%);
+      bottom:14px;
+      background:rgba(15,23,42,.95);
+      border:1px solid #2b3648;
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      font-size:13px;
+      display:none;
+      z-index:999;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Hybrid 12-Week Tracker</h1>
+  <div class="tabs" role="tablist" aria-label="Sections">
+    <button class="tab active" data-tab="dash">Dashboard</button>
+    <button class="tab" data-tab="weeks">12-Week Plan</button>
+    <button class="tab" data-tab="lifts">Lift Tracker</button>
+    <button class="tab" data-tab="settings">Backup</button>
+  </div>
+</header>
+
+<main>
+  <!-- DASHBOARD -->
+  <section id="dash" class="section active">
+    <div class="grid two">
+      <div class="card">
+        <h2>Progress</h2>
+        <div class="row" style="margin-top:10px">
+          <div class="pill"><span class="muted">km completed</span> <strong id="kmDone">0</strong></div>
+          <div class="pill"><span class="muted">km target</span> <strong id="kmTarget">0</strong></div>
+          <div class="pill"><span class="muted">km vs</span> <strong id="kmDiff">0</strong></div>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <div class="pill"><span class="muted">sessions</span> <strong id="sessDone">0</strong></div>
+          <div class="pill"><span class="muted">possible</span> <strong id="sessTotal">60</strong></div>
+          <div class="pill"><span class="muted">compliance</span> <strong id="compliance">0%</strong></div>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <div class="pill"><span class="muted">current streak</span> <strong id="streakNow">0</strong></div>
+          <div class="pill"><span class="muted">best streak</span> <strong id="streakBest">0</strong></div>
+          <div class="pill"><span class="muted">weeks done</span> <strong id="weeksDone">0</strong></div>
+        </div>
+        <p class="muted" style="margin-top:10px">Streak = consecutive weeks where all 5 sessions are checked.</p>
+      </div>
+
+      <div class="card">
+        <h2>This Week Snapshot</h2>
+        <p class="muted">Pick a week to view quickly.</p>
+        <div class="row" style="margin:10px 0">
+          <select id="weekPicker" class="btn" style="padding:10px 12px; border-radius:12px">
+          </select>
+          <span id="weekTag" class="tag"></span>
+        </div>
+        <div class="grid two">
+          <div class="pill"><span class="muted">Wed km</span> <strong id="wkWed">—</strong></div>
+          <div class="pill"><span class="muted">Sun km</span> <strong id="wkSun">—</strong></div>
+          <div class="pill"><span class="muted">runs</span> <strong id="wkRuns">—</strong></div>
+          <div class="pill"><span class="muted">sessions</span> <strong id="wkSess">—</strong></div>
+        </div>
+        <div style="margin-top:12px">
+          <div class="muted">Lifts (top set):</div>
+          <div class="row" style="margin-top:8px">
+            <span class="pill"><span class="muted">SQ</span> <strong id="liftSQ">—</strong></span>
+            <span class="pill"><span class="muted">BP</span> <strong id="liftBP">—</strong></span>
+            <span class="pill"><span class="muted">DL</span> <strong id="liftDL">—</strong></span>
+            <span class="pill"><span class="muted">OHP</span> <strong id="liftOHP">—</strong></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <h2>Weekly Breakdown</h2>
+      <div style="overflow:auto; border-radius:12px">
+        <table>
+          <thead>
+            <tr>
+              <th class="nowrap">Week</th>
+              <th class="nowrap">Target km</th>
+              <th class="nowrap">Actual km</th>
+              <th class="nowrap">Sessions (0–5)</th>
+              <th class="nowrap">Week Done</th>
+              <th class="nowrap">Runs (0–2)</th>
+            </tr>
+          </thead>
+          <tbody id="dashTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12-WEEK PLAN -->
+  <section id="weeks" class="section">
+    <div class="card">
+      <h2>12-Week Tracker</h2>
+      <p class="muted">Edit km in Wed/Sun. Tick sessions as you complete them. Deload weeks are highlighted.</p>
+      <div style="overflow:auto; border-radius:12px; margin-top:10px">
+        <table>
+          <thead>
+            <tr>
+              <th>Week</th>
+              <th class="nowrap">Target</th>
+              <th class="nowrap">Wed km</th>
+              <th class="nowrap">Sun km</th>
+              <th class="nowrap">Mon</th>
+              <th class="nowrap">Tue</th>
+              <th class="nowrap">Thu</th>
+              <th class="nowrap">Wed Run</th>
+              <th class="nowrap">Sun Run</th>
+              <th class="nowrap">Runs</th>
+              <th class="nowrap">Sess</th>
+              <th class="nowrap">Done</th>
+              <th class="nowrap">Total km</th>
+            </tr>
+          </thead>
+          <tbody id="weeksTable"></tbody>
+        </table>
+      </div>
+      <div class="footer-actions">
+        <button class="btn danger" id="resetWeekChecks">Reset all checkboxes</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIFTS -->
+  <section id="lifts" class="section">
+    <div class="card">
+      <h2>Lift Tracker (Weekly Top Set)</h2>
+      <p class="muted">Log your best/top set each week. e1RM uses Epley: weight × (1 + reps/30).</p>
+
+      <div style="overflow:auto; border-radius:12px; margin-top:10px">
+        <table>
+          <thead>
+            <tr>
+              <th>Week</th>
+              <th>SQ kg</th><th>Reps</th><th>e1RM</th>
+              <th>BP kg</th><th>Reps</th><th>e1RM</th>
+              <th>DL kg</th><th>Reps</th><th>e1RM</th>
+              <th>OHP kg</th><th>Reps</th><th>e1RM</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody id="liftTable"></tbody>
+        </table>
+      </div>
+
+      <div class="footer-actions">
+        <button class="btn" id="fillExample">Fill example (optional)</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SETTINGS / BACKUP -->
+  <section id="settings" class="section">
+    <div class="card">
+      <h2>Backup & Restore</h2>
+      <p class="muted">Your data is stored on this device (localStorage). Use Export to back it up or move it to another phone.</p>
+
+      <div class="footer-actions">
+        <button class="btn primary" id="exportBtn">Export JSON</button>
+        <label class="btn" for="importFile" style="display:inline-flex; align-items:center; gap:8px; cursor:pointer;">
+          Import JSON
+          <input id="importFile" type="file" accept="application/json" style="display:none" />
+        </label>
+        <button class="btn danger" id="wipeBtn">Wipe all data</button>
+      </div>
+
+      <div style="margin-top:12px">
+        <p class="muted small">Tip: After hosting this page, add it to your Home Screen for an “app-like” experience.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="toast" class="toast"></div>
+
+<script>
+  // ----------------------------
+  // Data Model
+  // ----------------------------
+  const DEFAULT_TARGETS = [20,22,24,20,25,27,28,22,29,30,30,24];
+  const DELOAD_WEEKS = new Set([4,8,12]);
+
+  const STORAGE_KEY = "hybrid_tracker_v1";
+
+  function makeDefaultState(){
+    const weeks = DEFAULT_TARGETS.map((t, idx) => {
+      const wed = Math.round(t * 0.4);
+      const sun = t - wed;
+      return {
+        week: idx+1,
+        target: t,
+        wedKm: wed,
+        sunKm: sun,
+        checks: { mon:false, tue:false, thu:false, wedRun:false, sunRun:false }
+      };
+    });
+
+    const lifts = Array.from({length:12}, (_,i)=>({
+      week:i+1,
+      squatKg:null, squatReps:null,
+      benchKg:null, benchReps:null,
+      deadKg:null, deadReps:null,
+      ohpKg:null, ohpReps:null,
+      notes:""
+    }));
+
+    return { weeks, lifts };
+  }
+
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return makeDefaultState();
+      const parsed = JSON.parse(raw);
+      // basic validation
+      if(!parsed.weeks || !parsed.lifts) return makeDefaultState();
+      return parsed;
+    }catch(e){
+      return makeDefaultState();
+    }
+  }
+
+  function saveState(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function toast(msg){
+    const el = document.getElementById("toast");
+    el.textContent = msg;
+    el.style.display = "block";
+    clearTimeout(toast._t);
+    toast._t = setTimeout(()=> el.style.display="none", 1600);
+  }
+
+  function e1rm(w, reps){
+    if(w==null || reps==null || w==="" || reps==="") return null;
+    const ww = Number(w), rr = Number(reps);
+    if(!isFinite(ww) || !isFinite(rr) || ww<=0 || rr<=0) return null;
+    return ww*(1+rr/30);
+  }
+
+  // ----------------------------
+  // Computations
+  // ----------------------------
+  function weekRunsDone(w){
+    return (w.checks.wedRun?1:0) + (w.checks.sunRun?1:0);
+  }
+  function weekSessionsDone(w){
+    const c=w.checks;
+    return (c.mon?1:0)+(c.tue?1:0)+(c.thu?1:0)+(c.wedRun?1:0)+(c.sunRun?1:0);
+  }
+  function weekDone(w){
+    return weekSessionsDone(w) === 5;
+  }
+  function weekTotalKm(w){
+    const a = Number(w.wedKm)||0;
+    const b = Number(w.sunKm)||0;
+    return a+b;
+  }
+
+  function computeDashboard(){
+    const kmDone = state.weeks.reduce((s,w)=>s+weekTotalKm(w),0);
+    const kmTarget = state.weeks.reduce((s,w)=>s+Number(w.target||0),0);
+    const sessDone = state.weeks.reduce((s,w)=>s+weekSessionsDone(w),0);
+    const weeksDone = state.weeks.filter(weekDone).length;
+
+    const compliance = (sessDone / (12*5)) || 0;
+
+    // streaks
+    let best=0, cur=0, run=0;
+    for(const w of state.weeks){
+      if(weekDone(w)){ run++; best=Math.max(best,run); }
+      else run=0;
+    }
+    // current streak from end
+    for(let i=state.weeks.length-1;i>=0;i--){
+      if(weekDone(state.weeks[i])) cur++;
+      else break;
+    }
+
+    return { kmDone, kmTarget, sessDone, weeksDone, compliance, best, cur };
+  }
+
+  function latestLiftSnapshot(weekNum){
+    const l = state.lifts.find(x=>x.week===weekNum);
+    if(!l) return {sq:"—",bp:"—",dl:"—",ohp:"—"};
+    const fmt = (kg,reps)=> (kg && reps) ? `${kg} x ${reps}` : "—";
+    return {
+      sq: fmt(l.squatKg,l.squatReps),
+      bp: fmt(l.benchKg,l.benchReps),
+      dl: fmt(l.deadKg,l.deadReps),
+      ohp: fmt(l.ohpKg,l.ohpReps)
+    };
+  }
+
+  // ----------------------------
+  // Rendering
+  // ----------------------------
+  const state = loadState();
+
+  function renderWeekPicker(){
+    const sel = document.getElementById("weekPicker");
+    sel.innerHTML = "";
+    state.weeks.forEach(w=>{
+      const opt = document.createElement("option");
+      opt.value = w.week;
+      opt.textContent = `Week ${w.week}`;
+      sel.appendChild(opt);
+    });
+    sel.value = "1";
+    sel.addEventListener("change", ()=>renderWeekSnapshot(Number(sel.value)));
+  }
+
+  function renderWeekSnapshot(weekNum){
+    const w = state.weeks.find(x=>x.week===weekNum);
+    if(!w) return;
+    const tag = document.getElementById("weekTag");
+    tag.textContent = DELOAD_WEEKS.has(weekNum) ? "Deload" : "Build";
+    tag.className = "tag" + (DELOAD_WEEKS.has(weekNum) ? " deload":"");
+
+    document.getElementById("wkWed").textContent = (w.wedKm ?? "—");
+    document.getElementById("wkSun").textContent = (w.sunKm ?? "—");
+    document.getElementById("wkRuns").textContent = `${weekRunsDone(w)}/2`;
+    document.getElementById("wkSess").textContent = `${weekSessionsDone(w)}/5`;
+
+    const snap = latestLiftSnapshot(weekNum);
+    document.getElementById("liftSQ").textContent = snap.sq;
+    document.getElementById("liftBP").textContent = snap.bp;
+    document.getElementById("liftDL").textContent = snap.dl;
+    document.getElementById("liftOHP").textContent = snap.ohp;
+  }
+
+  function renderDashboard(){
+    const d = computeDashboard();
+    document.getElementById("kmDone").textContent = d.kmDone.toFixed(0);
+    document.getElementById("kmTarget").textContent = d.kmTarget.toFixed(0);
+    const diff = d.kmDone - d.kmTarget;
+    const diffEl = document.getElementById("kmDiff");
+    diffEl.textContent = diff.toFixed(0);
+    diffEl.className = diff>=0 ? "ok" : "bad";
+
+    document.getElementById("sessDone").textContent = d.sessDone;
+    document.getElementById("sessTotal").textContent = 60;
+    document.getElementById("compliance").textContent = Math.round(d.compliance*100) + "%";
+
+    document.getElementById("streakNow").textContent = d.cur;
+    document.getElementById("streakBest").textContent = d.best;
+    document.getElementById("weeksDone").textContent = d.weeksDone;
+
+    // table
+    const tb = document.getElementById("dashTable");
+    tb.innerHTML = "";
+    state.weeks.forEach(w=>{
+      const tr = document.createElement("tr");
+      const done = weekDone(w);
+      const totalKm = weekTotalKm(w);
+      tr.innerHTML = `
+        <td class="nowrap">Week ${w.week} ${DELOAD_WEEKS.has(w.week) ? '<span class="tag deload">Deload</span>' : ''}</td>
+        <td class="nowrap">${w.target}</td>
+        <td class="nowrap">${totalKm}</td>
+        <td class="nowrap">${weekSessionsDone(w)}</td>
+        <td class="nowrap">${done ? '<span class="ok">Yes</span>' : '<span class="muted">No</span>'}</td>
+        <td class="nowrap">${weekRunsDone(w)}</td>
+      `;
+      tb.appendChild(tr);
+    });
+  }
+
+  function renderWeeksTable(){
+    const tb = document.getElementById("weeksTable");
+    tb.innerHTML = "";
+
+    state.weeks.forEach(w=>{
+      const tr = document.createElement("tr");
+      if(DELOAD_WEEKS.has(w.week)){
+        tr.style.background = "rgba(245,158,11,.08)";
+      }
+
+      const mkNum = (value, onChange)=> {
+        const inp = document.createElement("input");
+        inp.type = "number";
+        inp.inputMode = "numeric";
+        inp.value = (value ?? "");
+        inp.addEventListener("change", onChange);
+        inp.addEventListener("blur", onChange);
+        return inp;
+      };
+
+      const mkChk = (value, onChange)=>{
+        const inp = document.createElement("input");
+        inp.type = "checkbox";
+        inp.className = "chk";
+        inp.checked = !!value;
+        inp.addEventListener("change", onChange);
+        return inp;
+      };
+
+      const tdWeek = document.createElement("td");
+      tdWeek.innerHTML = `Week ${w.week} ${DELOAD_WEEKS.has(w.week) ? '<span class="tag deload">Deload</span>' : ''}`;
+
+      const tdTarget = document.createElement("td"); tdTarget.textContent = w.target;
+
+      const tdWed = document.createElement("td");
+      tdWed.appendChild(mkNum(w.wedKm, (e)=>{ w.wedKm = Number(e.target.value)||0; saveState(); rerenderAll(); }));
+
+      const tdSun = document.createElement("td");
+      tdSun.appendChild(mkNum(w.sunKm, (e)=>{ w.sunKm = Number(e.target.value)||0; saveState(); rerenderAll(); }));
+
+      const tdMon = document.createElement("td");
+      tdMon.appendChild(mkChk(w.checks.mon, (e)=>{ w.checks.mon = e.target.checked; saveState(); rerenderAll(); }));
+
+      const tdTue = document.createElement("td");
+      tdTue.appendChild(mkChk(w.checks.tue, (e)=>{ w.checks.tue = e.target.checked; saveState(); rerenderAll(); }));
+
+      const tdThu = document.createElement("td");
+      tdThu.appendChild(mkChk(w.checks.thu, (e)=>{ w.checks.thu = e.target.checked; saveState(); rerenderAll(); }));
+
+      const tdWedRun = document.createElement("td");
+      tdWedRun.appendChild(mkChk(w.checks.wedRun, (e)=>{ w.checks.wedRun = e.target.checked; saveState(); rerenderAll(); }));
+
+      const tdSunRun = document.createElement("td");
+      tdSunRun.appendChild(mkChk(w.checks.sunRun, (e)=>{ w.checks.sunRun = e.target.checked; saveState(); rerenderAll(); }));
+
+      const tdRuns = document.createElement("td"); tdRuns.textContent = weekRunsDone(w);
+      const tdSess = document.createElement("td"); tdSess.textContent = weekSessionsDone(w);
+      const tdDone = document.createElement("td"); tdDone.innerHTML = weekDone(w) ? '<span class="ok">Yes</span>' : '<span class="muted">No</span>';
+      const tdTot = document.createElement("td"); tdTot.textContent = weekTotalKm(w);
+
+      [tdWeek,tdTarget,tdWed,tdSun,tdMon,tdTue,tdThu,tdWedRun,tdSunRun,tdRuns,tdSess,tdDone,tdTot].forEach(td=>tr.appendChild(td));
+      tb.appendChild(tr);
+    });
+  }
+
+  function renderLiftTable(){
+    const tb = document.getElementById("liftTable");
+    tb.innerHTML = "";
+
+    const mkNum = (value, onChange)=> {
+      const inp = document.createElement("input");
+      inp.type = "number";
+      inp.inputMode = "numeric";
+      inp.value = (value ?? "");
+      inp.addEventListener("change", onChange);
+      inp.addEventListener("blur", onChange);
+      return inp;
+    };
+
+    const mkTxt = (value, onChange)=>{
+      const inp = document.createElement("input");
+      inp.type = "text";
+      inp.value = value ?? "";
+      inp.addEventListener("change", onChange);
+      inp.addEventListener("blur", onChange);
+      return inp;
+    };
+
+    state.lifts.forEach(l=>{
+      const tr = document.createElement("tr");
+      if(DELOAD_WEEKS.has(l.week)){
+        tr.style.background = "rgba(245,158,11,.08)";
+      }
+
+      const eSQ = e1rm(l.squatKg, l.squatReps);
+      const eBP = e1rm(l.benchKg, l.benchReps);
+      const eDL = e1rm(l.deadKg, l.deadReps);
+      const eOHP= e1rm(l.ohpKg, l.ohpReps);
+
+      const tdWeek = document.createElement("td");
+      tdWeek.innerHTML = `Week ${l.week} ${DELOAD_WEEKS.has(l.week) ? '<span class="tag deload">Deload</span>' : ''}`;
+
+      const tdSQkg = document.createElement("td");
+      tdSQkg.appendChild(mkNum(l.squatKg, e=>{ l.squatKg = valOrNull(e.target.value); saveState(); rerenderAll(); }));
+
+      const tdSQr = document.createElement("td");
+      tdSQr.appendChild(mkNum(l.squatReps, e=>{ l.squatReps = valOrNull(e.target.value); saveState(); rerenderAll(); }));
+
+      const tdSQe = document.createElement("td");
+      tdSQe.textContent = eSQ ? eSQ.toFixed(1) : "—";
+
+      const tdBPkg = document.createElement("td");
+      tdBPkg.appendChild(mkNum(l.benchKg, e=>{ l.benchKg = valOrNull(e.target.value); saveState(); rerenderAll(); }));
+
+      const tdBPr = document.createElement("td");
+      tdBPr.appendChild(mkNum(l.benchReps, e=>{ l.benchReps = valOrNull(e.target.value); saveState(); rerenderAll(); }));
+
+      const tdBPe = document.createElement("td");
+      tdBPe.textContent = eBP ? eBP.toFixed(1) : "—";
+
+      const tdDLkg = document.createElement("td");
+      tdDLkg.appendChild(mkNum(l.deadKg, e=>{ l.deadKg = valOrNull(e.target.value); saveState(); rerenderAll(); }));
+
+      const tdDLr = document.createElement("td");
+      tdDLr.appendChild(mkNum(l.deadReps, e=>{ l.deadReps = valOrNull(e.target.value); saveState(); rerenderAll(); }));
+
+      const tdDLe = document.createElement("td");
+      tdDLe.textContent = eDL ? eDL.toFixed(1) : "—";
+
+      const tdOHPkg = document.createElement("td");
+      tdOHPkg.appendChild(mkNum(l.ohpKg, e=>{ l.ohpKg = valOrNull(e.target.value); saveState(); rerenderAll(); }));
+
+      const tdOHPr = document.createElement("td");
+      tdOHPr.appendChild(mkNum(l.ohpReps, e=>{ l.ohpReps = valOrNull(e.target.value); saveState(); rerenderAll(); }));
+
+      const tdOHPe = document.createElement("td");
+      tdOHPe.textContent = eOHP ? eOHP.toFixed(1) : "—";
+
+      const tdNotes = document.createElement("td");
+      tdNotes.appendChild(mkTxt(l.notes, e=>{ l.notes = e.target.value; saveState(); }));
+
+      [tdWeek,
+       tdSQkg,tdSQr,tdSQe,
+       tdBPkg,tdBPr,tdBPe,
+       tdDLkg,tdDLr,tdDLe,
+       tdOHPkg,tdOHPr,tdOHPe,
+       tdNotes
+      ].forEach(td=>tr.appendChild(td));
+      tb.appendChild(tr);
+    });
+  }
+
+  function valOrNull(v){
+    if(v==="" || v==null) return null;
+    const n = Number(v);
+    if(!isFinite(n)) return null;
+    return n;
+  }
+
+  function rerenderAll(){
+    renderDashboard();
+    renderWeeksTable();
+    renderLiftTable();
+    const sel = document.getElementById("weekPicker");
+    if(sel) renderWeekSnapshot(Number(sel.value));
+  }
+
+  // ----------------------------
+  // Tabs
+  // ----------------------------
+  document.querySelectorAll(".tab").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      const tab = btn.dataset.tab;
+      document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+      document.getElementById(tab).classList.add("active");
+      // render on demand
+      rerenderAll();
+    });
+  });
+
+  // ----------------------------
+  // Actions
+  // ----------------------------
+  document.getElementById("resetWeekChecks").addEventListener("click", ()=>{
+    if(!confirm("Reset ALL session checkboxes for all weeks?")) return;
+    state.weeks.forEach(w=>{
+      w.checks.mon=false; w.checks.tue=false; w.checks.thu=false; w.checks.wedRun=false; w.checks.sunRun=false;
+    });
+    saveState();
+    toast("Checkboxes reset.");
+    rerenderAll();
+  });
+
+  document.getElementById("wipeBtn").addEventListener("click", ()=>{
+    if(!confirm("Wipe ALL data on this device? This cannot be undone.")) return;
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  });
+
+  document.getElementById("exportBtn").addEventListener("click", ()=>{
+    const blob = new Blob([JSON.stringify(state,null,2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "hybrid-tracker-backup.json";
+    a.click();
+    URL.revokeObjectURL(url);
+    toast("Exported JSON.");
+  });
+
+  document.getElementById("importFile").addEventListener("change", async (e)=>{
+    const file = e.target.files?.[0];
+    if(!file) return;
+    try{
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      if(!parsed.weeks || !parsed.lifts) throw new Error("Invalid file.");
+      // simple compatibility checks
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+      toast("Imported. Reloading…");
+      setTimeout(()=>location.reload(), 600);
+    }catch(err){
+      alert("Import failed: " + err.message);
+    }finally{
+      e.target.value = "";
+    }
+  });
+
+  document.getElementById("fillExample").addEventListener("click", ()=>{
+    // harmless quick example
+    state.lifts[0].squatKg = 80; state.lifts[0].squatReps = 8;
+    state.lifts[0].benchKg = 80; state.lifts[0].benchReps = 8;
+    state.lifts[0].deadKg = 120; state.lifts[0].deadReps = 6;
+    state.lifts[0].ohpKg = 50; state.lifts[0].ohpReps = 8;
+    saveState();
+    toast("Example filled (Week 1).");
+    rerenderAll();
+  });
+
+  // ----------------------------
+  // Init
+  // ----------------------------
+  renderWeekPicker();
+  rerenderAll();
+  renderWeekSnapshot(1);
+</script>
+</body>
+</html>
